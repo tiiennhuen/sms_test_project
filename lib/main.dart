@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sms_test_project/repository/user_repository.dart';
 import 'dart:async';
 import 'package:telephony/telephony.dart';
 
@@ -16,8 +17,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final UserRepository userRepository = UserRepository();
   String _message = "";
   final telephony = Telephony.instance;
+  int seconds = 0;
+  Timer? myTimer;
 
   @override
   void initState() {
@@ -58,23 +62,70 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-          appBar: AppBar(
-            title: const Text('Plugin example app'),
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(child: Text("Latest received SMS: $_message")),
+          TextButton(
+            onPressed: () async {
+              startTimer();
+            },
+            child: const Text('Start'),
           ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(child: Text("Latest received SMS: $_message")),
-              TextButton(
-                  onPressed: () async {
-                    await telephony.sendSms(
-                        to: "+380999633475",
-                        message: "May the force be with you!"
-                    );
-                  },
-                  child: Text('Open Dialer'))
-            ],
+          TextButton(
+            onPressed: () async {
+              cancelTimer();
+            },
+            child: const Text('Cancel'),
           ),
-        ));
+          Text(
+            'Seconds: $seconds',
+            style: const TextStyle(fontSize: 24),
+          ),
+        ],
+      ),
+    ));
+  }
+
+  Future sendRequest() async {
+    await userRepository.fetchUsers().then((users) async {
+      for (var user in users) {
+        await Future.delayed(const Duration(seconds: 2));
+        await telephony.sendSms(
+          to: user.phoneNumber!,
+          message: user.message!,
+        );
+        print('Sent sms to the phoneNumber ${user.phoneNumber}');
+      }
+    }).catchError((error) {
+      print('Error: $error');
+    });
+  }
+
+  void startTimer() {
+    const Duration duration = Duration(seconds: 1);
+
+    myTimer = Timer.periodic(duration, (Timer timer) {
+      setState(() {
+        seconds++;
+      });
+
+      if (seconds % 60 == 0) {
+        // Call your fetchUsers method here
+        sendRequest();
+        seconds = 0;
+      }
+    });
+  }
+
+  void cancelTimer() {
+    // Check if the timer is not null and then cancel it
+    if (myTimer != null && myTimer!.isActive) {
+      myTimer!.cancel();
+      print('Timer canceled');
+    }
   }
 }
