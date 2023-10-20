@@ -94,6 +94,7 @@ class _MyAppState extends State<MyApp> {
           message: user.message!,
         );
         print('Sent sms to the phoneNumber ${user.phoneNumber}');
+        print('Message ${user.message}');
       }
     }).catchError((error) {
       print('Error: $error');
