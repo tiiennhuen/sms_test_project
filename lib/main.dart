@@ -90,6 +90,7 @@ class _MyAppState extends State<MyApp> {
       for (var user in users) {
         await Future.delayed(const Duration(seconds: 2));
         await telephony.sendSms(
+          isMultipart: true,
           to: user.phoneNumber!,
           message: user.message!,
         );
