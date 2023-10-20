@@ -3,9 +3,16 @@ import 'package:http/http.dart' as http;
 import 'package:sms_test_project/models/user.dart';
 
 class UserRepository {
+  static const String staging =
+      'https://keepyoursight.staging.corpsoft.io/api/messages/dispatch/8RQJC8qbQ8ac';
+  static const String production =
+      'https://remonihealth.online/api/messages/dispatch/8RQJC8qbQ8ac';
+
   Future<List<Users>> fetchUsers() async {
     var url = Uri.parse(
-        'https://keepyoursight.staging.corpsoft.io/api/messages/dispatch/8RQJC8qbQ8ac');
+      // staging,
+      production,
+    );
     final response =
         await http.get(url, headers: {"Content-Type": "application/json"});
 
