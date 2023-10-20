@@ -110,7 +110,6 @@ class _MyAppState extends State<MyApp> {
       });
 
       if (seconds % 60 == 0) {
-        // Call your fetchUsers method here
         sendRequest();
         seconds = 0;
       }
